@@ -2,6 +2,7 @@
   "name": "@craftful/loom",
   "type": "module",
   "version": "0.1.0",
+  "packageManager": "pnpm@10.27.0",
   "description": "Opinionated markdown-to-HTML preprocessor for Svelte and plain HTML.",
   "license": "MIT",
   "homepage": "https://github.com/craftful-labs/loom#readme",
