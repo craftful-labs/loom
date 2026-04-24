@@ -4,7 +4,7 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     svelte: 'src/svelte/index.ts',
-    prettier: 'prettier/index.ts'
+    prettier: 'src/prettier/index.ts'
   },
   dts: true,
   exports: true,
