@@ -1,3 +1,3 @@
-export function fn() {
-  return 'Hello, tsdown!'
-}
+export { createLoom } from './core'
+
+export type { LoomOptions } from './core'
