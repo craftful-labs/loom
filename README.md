@@ -1,16 +1,14 @@
 # Loom
 
-Opinionated markdown preprocessor for Svelte, built on the unified pipeline.
+A [loom](https://en.wikipedia.org/wiki/Loom) weaves threads into fabric. This one weaves Markdown into HTML — a markdown processor built on the unified pipeline, usable in any JavaScript project. Extensible with remark and rehype plugins, and ships with an optional Svelte preprocessor for teams that want `.md` files to compile to components.
 
-## Features
+## Highlights
 
-- `.md` files compile to Svelte components — import them, or use as `+page.md` routes
-- Drop a `<script>` block in markdown to import and render Svelte components inline
-- Replace any prose tag (`<p>`, `<h1>`, `<pre>`, ...) with your own Svelte component via filesystem convention
-- Code-fence metadata forwarded to your `Pre` component as props
+- Full CommonMark support out of the box; add GFM or any other remark/rehype plugin as needed
+- `createLoom()` renders markdown to HTML in any JavaScript project — no framework dependency
 - Async pipeline — works with `rehype-shiki`, `rehype-pretty-code`, and other async plugins
-- `{` and `}` auto-escaped in rendered output so Svelte doesn't interpret them
-- Prettier plugin included
+- Optional Svelte preprocessor: `.md` files compile to components, with `<script>` blocks for inline components, filesystem-based prose tag replacement, and code-fence metadata forwarded as props
+- Ships a Prettier plugin for formatting `.md` files containing `<script>` blocks
 
 ## Install
 
@@ -18,9 +16,44 @@ Opinionated markdown preprocessor for Svelte, built on the unified pipeline.
 pnpm add @craftful/loom
 ```
 
-## Core API
+## Quick start
 
-Use `createLoom()` for markdown → HTML without the Svelte layer.
+**In a JavaScript project** — render Markdown to HTML directly:
+
+```ts
+import { createLoom } from '@craftful/loom'
+
+const render = createLoom()
+await render('# Hello **world**')
+// '<h1>Hello <strong>world</strong></h1>'
+```
+
+**In a Svelte project** — register the preprocessor so `.md` files become Svelte components:
+
+```js
+// svelte.config.js
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
+import { loom } from '@craftful/loom/svelte'
+
+export default {
+  extensions: ['.svelte', '.md'],
+  preprocess: [loom(), vitePreprocess()]
+}
+```
+
+```svelte
+<script>
+  import Post from './post.md'
+</script>
+
+<Post />
+```
+
+Jump to [JavaScript usage](#javascript-usage) or [Svelte usage](#svelte-usage) for the details.
+
+## JavaScript usage
+
+Use `createLoom()` for a plain markdown-to-HTML processor — no Svelte required.
 
 ```ts
 import { createLoom } from '@craftful/loom'
@@ -30,6 +63,8 @@ const render = createLoom()
 await render('# Hello **world**')
 // '<h1>Hello <strong>world</strong></h1>'
 ```
+
+### Plugins
 
 Pass unified plugins via `remarkPlugins` and `rehypePlugins`. Each entry can be a plugin alone or a `[plugin, options]` tuple:
 
@@ -44,9 +79,11 @@ const render = createLoom({
 })
 ```
 
-Raw HTML is passed through unchanged. Loom does not sanitize HTML or URLs — sanitize before rendering user-supplied markdown.
+### Security
 
-## Svelte
+Raw HTML is passed through unchanged. Loom does not sanitize HTML or URLs — sanitize user-supplied Markdown before rendering (for example, with `rehype-sanitize`).
+
+## Svelte usage
 
 Use `@craftful/loom/svelte` to turn `.md` files into Svelte components.
 
@@ -63,7 +100,7 @@ export default {
 }
 ```
 
-`remark-gfm` is enabled by default, so tables, strikethrough, task lists, autolinks, and footnotes work out of the box.
+`remark-gfm` is enabled by default, so tables, strikethrough, task lists, autolinks, and footnotes all work out of the box.
 
 ### Using `.md` files
 
@@ -85,7 +122,7 @@ Or use directly as a SvelteKit route by creating `src/routes/about/+page.md`:
 Plain markdown — no Svelte boilerplate required.
 ```
 
-### Script blocks inside markdown
+### Script blocks inside Markdown
 
 Markdown files accept optional `<script>` and `<script module>` blocks at the top, so you can import and use your own Svelte components inline:
 
@@ -151,7 +188,7 @@ console.log('hi')
 
 ### Custom components
 
-Drop any `.svelte` file directly in the loom directory (not inside `prose/`), reference it in your markdown, and loom auto-imports it:
+Drop any `.svelte` file directly in the loom directory (not inside `prose/`), reference it in your Markdown, and loom auto-imports it:
 
 ```txt
 src/lib/loom/Callout.svelte
@@ -182,23 +219,9 @@ export default {
 }
 ```
 
-## How it works
+## Prettier plugin
 
-For every `.md` file the preprocessor:
-
-1. Extracts leading `<script module>` and `<script>` blocks.
-2. Parses the remaining markdown with `remark-parse`.
-3. Applies `remark-gfm` and any user-provided remark plugins.
-4. Converts mdast → hast with `remark-rehype`.
-5. Replaces matched prose tags with your Svelte components (`<pre>` becomes `<Pre code="..." lang="..." />`; everything else is renamed in place).
-6. Runs any user-provided rehype plugins.
-7. Escapes `{` and `}` in text nodes so Svelte doesn't interpret them.
-8. Serializes the hast tree to HTML via `rehype-stringify`.
-9. Injects the required component imports into the instance `<script>` (creating one if the file doesn't have one).
-
-## Prettier
-
-Loom exposes a Prettier plugin entry:
+Register the plugin in your Prettier config to format `.md` files that contain `<script>` blocks:
 
 ```json
 {
@@ -218,4 +241,4 @@ import type { PreprocessorOptions } from '@craftful/loom/svelte'
 
 ## License
 
-MIT
+[MIT](./LICENSE)
