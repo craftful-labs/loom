@@ -15,6 +15,8 @@ export function escapeSvelte(str: string): string {
   return str.replace(/[&<>"'{}]/g, (c) => ESC[c])
 }
 
+const LANG_PREFIX = 'language-'
+
 type MetaValue = string | true
 
 function parseMeta(meta: string): Record<string, MetaValue> {
@@ -33,10 +35,9 @@ function buildCodeProps(pre: Element): string {
   if (!codeEl) return ''
 
   const attrs: Record<string, MetaValue> = {}
-  const cls = (codeEl.properties?.className as string[] | undefined)?.find((c) =>
-    c.startsWith('language-')
-  )
-  const lang = cls?.slice('language-'.length)
+  const classNames = codeEl.properties?.className as string[] | undefined
+  const langClass = classNames?.find((c) => c.startsWith(LANG_PREFIX))
+  const lang = langClass?.slice(LANG_PREFIX.length)
   if (lang) attrs.lang = lang
 
   const value = codeEl.children.map((c) => (c.type === 'text' ? c.value : '')).join('')
