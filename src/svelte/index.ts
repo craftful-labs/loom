@@ -4,6 +4,7 @@ import type { PluggableList } from 'unified'
 import { createLoom } from '../core'
 import { svelteComponents } from './components'
 import { rehypeEscapeSvelte } from './rehypeEscapeSvelte'
+import { remarkComponentToBlock } from './remarkComponentToBlock'
 import { scanLoomDir } from './scanProse'
 
 export interface PreprocessorOptions {
@@ -20,7 +21,7 @@ export function loom(options: PreprocessorOptions = {}) {
   const { prose, proseImports, customRegistry } = scanLoomDir(join(process.cwd(), dir), dir)
 
   const render = createLoom({
-    remarkPlugins: [remarkGfm, ...(options.remarkPlugins ?? [])],
+    remarkPlugins: [remarkComponentToBlock, remarkGfm, ...(options.remarkPlugins ?? [])],
     rehypePlugins: [svelteComponents(prose), ...(options.rehypePlugins ?? []), rehypeEscapeSvelte]
   })
 
